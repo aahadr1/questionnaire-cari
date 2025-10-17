@@ -54,14 +54,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (error) throw error
 
-      // Create profile (silently fail if already exists)
+      // Create profile (ignore error if already exists)
       if (data.user) {
         await supabase.from('profiles').insert({
           id: data.user.id,
           email: data.user.email,
           full_name: fullName,
-        }).catch(() => {
-          // Profile might already exist, ignore error
         })
       }
 
