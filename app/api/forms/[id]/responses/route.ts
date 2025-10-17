@@ -1,19 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createServerSupabaseForAccessToken } from '@/lib/supabase/server'
-import { cookies } from 'next/headers'
+import { createServerSupabase } from '@/lib/supabase/server'
+import { getAuthUser, getAuthUserFromRequest } from '@/lib/supabase/server-auth'
 
 export async function GET(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  // Use anonymous client for public read policies; include access token if present for owner reads
-  const cookieStore = cookies()
-  const authCookie = cookieStore.getAll().find(c => c.name.includes('-auth-token'))
-  let accessToken: string | null = null
-  if (authCookie?.value) {
-    try { accessToken = JSON.parse(authCookie.value)?.access_token || null } catch { accessToken = authCookie.value }
+  // Require authenticated creator and verify ownership
+  const user = (await getAuthUserFromRequest(req)) || (await getAuthUser())
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
-  const supabase = createServerSupabaseForAccessToken(accessToken)
+
+  const supabase = createServerSupabase()
   const { id: formId } = params
   
   const searchParams = req.nextUrl.searchParams
@@ -28,6 +27,17 @@ export async function GET(
     .eq('form_id', formId)
 
   // Get paginated responses with answers
+  // Verify user owns this form (simple owner check)
+  const { data: ownerRow } = await supabase
+    .from('forms')
+    .select('owner_id')
+    .eq('id', formId)
+    .single()
+
+  if (!ownerRow || ownerRow.owner_id !== user.id) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  }
+
   const { data: responses, error } = await supabase
     .from('responses')
     .select(`
