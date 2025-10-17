@@ -117,7 +117,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 export function useAuth() {
   const context = useContext(AuthContext)
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider')
+    // Gracefully degrade if provider isn't mounted for any reason
+    return {
+      user: null,
+      session: null,
+      loading: false,
+      async signUp() {
+        return { error: new Error('Authentication is not available. Please try again later.') }
+      },
+      async signIn() {
+        return { error: new Error('Authentication is not available. Please try again later.') }
+      },
+      async signOut() {
+        return
+      },
+    }
   }
   return context
 }
