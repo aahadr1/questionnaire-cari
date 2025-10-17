@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabase } from '@/lib/supabase/server'
-import { getAuthUser } from '@/lib/supabase/server-auth'
+import { getAuthUser, getAuthUserFromRequest } from '@/lib/supabase/server-auth'
 
 type SavePayload = {
   form: { title?: string; description?: string; access_mode?: string; identification_fields?: any[] }
@@ -8,7 +8,7 @@ type SavePayload = {
 }
 
 export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
-  const user = await getAuthUser()
+  const user = (await getAuthUserFromRequest(req)) || (await getAuthUser())
 
   if (!user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
