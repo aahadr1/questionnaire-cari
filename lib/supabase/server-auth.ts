@@ -6,8 +6,19 @@ export async function getAuthUser() {
   
   // Get access token from cookies
   const allCookies = cookieStore.getAll()
-  const accessToken = allCookies.find(c => c.name.includes('access-token'))?.value ||
-                     allCookies.find(c => c.name.includes('auth-token'))?.value
+  // Supabase v2 stores a JSON payload in `sb-<project-ref>-auth-token`
+  const supabaseAuthCookie = allCookies.find(c => c.name.includes('-auth-token'))
+  let accessToken: string | null = null
+
+  if (supabaseAuthCookie?.value) {
+    try {
+      const parsed = JSON.parse(supabaseAuthCookie.value)
+      accessToken = parsed?.access_token || null
+    } catch {
+      // Fallback: some environments may store raw token (unlikely)
+      accessToken = supabaseAuthCookie.value
+    }
+  }
 
   if (!accessToken) {
     return null
