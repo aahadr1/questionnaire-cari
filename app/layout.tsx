@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import { Providers } from './providers'
+import { ChunkErrorReload } from '@/components/ChunkErrorReload'
 import './globals.css'
 
 const inter = Inter({ subsets: ['latin'] })
@@ -18,6 +19,7 @@ export default function RootLayout({
   return (
     <html lang="fr">
       <body className={`${inter.className} min-h-screen antialiased`}>
+        <ChunkErrorReload />
         <Providers>
           {children}
         </Providers>
