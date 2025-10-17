@@ -68,6 +68,7 @@ export function FormBuilder({ formId, initialData, mode }: FormBuilderProps) {
             title: form.title,
             description: form.description,
             access_mode: form.accessMode,
+            owner_id: undefined,
           }),
         })
 

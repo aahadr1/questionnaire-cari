@@ -40,7 +40,7 @@ function formBuilderReducer(state: FormBuilderState, action: FormBuilderAction):
       const newQuestion: Question = {
         id: nanoid(),
         type: action.payload.type,
-        label: `Question ${state.form.questions.length + 1}`,
+        label: '',
         description: '',
         isRequired: false,
         options: action.payload.type === 'single_choice' || action.payload.type === 'multiple_choice' 

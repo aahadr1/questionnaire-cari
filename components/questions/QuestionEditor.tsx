@@ -81,6 +81,7 @@ export function QuestionEditor({
               </span>
               <div className="flex-1">
                 <Input
+                  autoFocus
                   value={question.label}
                   onChange={(e) => onUpdate({ label: e.target.value })}
                   placeholder="Intitulé de la question"
