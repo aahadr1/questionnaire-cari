@@ -37,9 +37,9 @@ export function QuestionRenderer({ question, value, onChange, error }: QuestionR
 
       case 'single_choice':
         return (
-          <div className="space-y-2">
+          <div className="space-y-3">
             {(question.options || []).map((option, index) => (
-              <label key={index} className="flex items-center gap-3 cursor-pointer">
+              <label key={index} className="flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer transition-colors">
                 <input
                   type="radio"
                   name={`question-${question.id}`}
@@ -48,7 +48,7 @@ export function QuestionRenderer({ question, value, onChange, error }: QuestionR
                   onChange={(e) => onChange(e.target.value)}
                   className="h-4 w-4 text-black focus:ring-gray-500"
                 />
-                <span className="text-sm">{option}</span>
+                <span className="text-sm flex-1">{option}</span>
               </label>
             ))}
           </div>
@@ -56,9 +56,9 @@ export function QuestionRenderer({ question, value, onChange, error }: QuestionR
 
       case 'multiple_choice':
         return (
-          <div className="space-y-2">
+          <div className="space-y-3">
             {(question.options || []).map((option, index) => (
-              <label key={index} className="flex items-center gap-3 cursor-pointer">
+              <label key={index} className="flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer transition-colors">
                 <input
                   type="checkbox"
                   value={option}
@@ -73,7 +73,7 @@ export function QuestionRenderer({ question, value, onChange, error }: QuestionR
                   }}
                   className="h-4 w-4 text-black focus:ring-gray-500 rounded"
                 />
-                <span className="text-sm">{option}</span>
+                <span className="text-sm flex-1">{option}</span>
               </label>
             ))}
           </div>

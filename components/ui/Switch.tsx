@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { clsx } from 'clsx'
 
 interface SwitchProps {
@@ -12,6 +12,11 @@ interface SwitchProps {
 
 export function Switch({ label, checked = false, onChange, disabled }: SwitchProps) {
   const [isChecked, setIsChecked] = useState(checked)
+
+  // Sync with external checked prop
+  useEffect(() => {
+    setIsChecked(checked)
+  }, [checked])
 
   const handleToggle = () => {
     if (!disabled) {
