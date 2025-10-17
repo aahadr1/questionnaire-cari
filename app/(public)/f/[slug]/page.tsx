@@ -1,10 +1,14 @@
 import Link from 'next/link'
+import { headers } from 'next/headers'
 import { PublicForm } from '@/components/form-builder/PublicForm'
 
 type Props = { params: { slug: string } }
 
 async function getForm(slug: string) {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+  const h = headers()
+  const proto = (h.get('x-forwarded-proto') || 'https').split(',')[0]
+  const host = h.get('x-forwarded-host') || h.get('host')
+  const baseUrl = `${proto}://${host}`
   const res = await fetch(`${baseUrl}/api/forms/by-slug/${slug}`, { cache: 'no-store' })
   if (!res.ok) return null
   return res.json()
