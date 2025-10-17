@@ -27,6 +27,7 @@ import { useAutoSave } from '@/hooks/useAutoSave'
 import { FormData, Question } from '@/types/form-builder'
 import { QuestionType } from '@/types/form'
 import { Input } from '@/components/ui/Input'
+import { getAuthHeaders } from '@/utils/auth'
 import { Select } from '@/components/ui/Select'
 import { Button } from '@/components/ui/Button'
 import { QuestionEditor } from '@/components/questions/QuestionEditor'
@@ -61,9 +62,10 @@ export function FormBuilder({ formId, initialData, mode }: FormBuilderProps) {
     actions.setSaving(true)
     try {
       if (mode === 'create') {
+        const authHeaders = await getAuthHeaders()
         const response = await fetch('/api/forms/create', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', ...authHeaders },
           body: JSON.stringify({
             title: form.title,
             description: form.description,
@@ -103,9 +105,10 @@ export function FormBuilder({ formId, initialData, mode }: FormBuilderProps) {
           })),
         }
 
+        const authHeaders = await getAuthHeaders()
         const response = await fetch(`/api/forms/${formId}/save`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', ...authHeaders },
           body: JSON.stringify(payload),
         })
 
@@ -162,9 +165,10 @@ export function FormBuilder({ formId, initialData, mode }: FormBuilderProps) {
         await handleSave()
       }
 
+      const authHeaders = await getAuthHeaders()
       const response = await fetch('/api/forms/publish', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...authHeaders },
         body: JSON.stringify({ formId, isPublished: !form.isPublished }),
       })
 

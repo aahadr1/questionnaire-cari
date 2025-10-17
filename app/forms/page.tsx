@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { FormRecord } from '@/types/form'
 import { Button } from '@/components/ui/Button'
+import { getAuthHeaders } from '@/utils/auth'
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
 
 export default function FormsListPage() {
@@ -24,7 +25,8 @@ function FormsListContent() {
   useEffect(() => {
     async function fetchForms() {
       try {
-        const response = await fetch('/api/forms')
+        const authHeaders = await getAuthHeaders()
+        const response = await fetch('/api/forms', { headers: { ...authHeaders } })
         if (!response.ok) throw new Error('Failed to fetch forms')
         
         const data = await response.json()
