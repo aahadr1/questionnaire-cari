@@ -49,14 +49,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           data: {
             full_name: fullName,
           },
-          emailRedirectTo: typeof window !== 'undefined' ? `${window.location.origin}/login` : undefined,
         },
       })
 
       if (error) throw error
 
-      // Create profile
-      // Profile row creation will be done by a DB trigger or deferred to after email confirmation
+      // Create profile (silently fail if already exists)
+      if (data.user) {
+        await supabase.from('profiles').insert({
+          id: data.user.id,
+          email: data.user.email,
+          full_name: fullName,
+        }).catch(() => {
+          // Profile might already exist, ignore error
+        })
+      }
 
       return { error: null }
     } catch (error) {
