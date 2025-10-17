@@ -25,6 +25,9 @@ export default function LoginPage() {
     if (error) {
       setError(error.message)
       setLoading(false)
+    } else {
+      // Redirect on success
+      router.push('/forms')
     }
   }
 

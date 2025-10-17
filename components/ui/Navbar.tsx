@@ -85,9 +85,10 @@ export function Navbar() {
                       </div>
                       <div className="py-1">
                         <button
-                          onClick={() => {
-                            signOut()
+                          onClick={async () => {
+                            await signOut()
                             setShowUserMenu(false)
+                            window.location.href = '/'
                           }}
                           className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                         >
