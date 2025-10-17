@@ -1,8 +1,8 @@
 'use client'
 
-import { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, useContext, useEffect, useMemo, useState } from 'react'
 import { User, Session } from '@supabase/supabase-js'
-import { supabase } from '@/lib/supabase/client'
+import { getSupabaseClient } from '@/lib/supabase/client'
 
 interface AuthContextType {
   user: User | null
@@ -20,29 +20,46 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session)
-      setUser(session?.user ?? null)
-      setLoading(false)
-    })
-
-    // Listen for auth changes
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session)
-      setUser(session?.user ?? null)
-      setLoading(false)
-    })
-
-    return () => subscription.unsubscribe()
+  // Lazily resolve the client; if env is missing, surface a controlled error state
+  const { client, clientError } = useMemo(() => {
+    try {
+      return { client: getSupabaseClient(), clientError: null as Error | null }
+    } catch (e) {
+      return { client: null, clientError: e as Error }
+    }
   }, [])
+
+  useEffect(() => {
+    if (!client) {
+      setLoading(false)
+      return
+    }
+
+    let isMounted = true
+
+    client.auth.getSession().then(({ data: { session } }) => {
+      if (!isMounted) return
+      setSession(session)
+      setUser(session?.user ?? null)
+      setLoading(false)
+    })
+
+    const { data: { subscription } } = client.auth.onAuthStateChange((_event, session) => {
+      setSession(session)
+      setUser(session?.user ?? null)
+      setLoading(false)
+    })
+
+    return () => {
+      isMounted = false
+      subscription.unsubscribe()
+    }
+  }, [client])
 
   const signUp = async (email: string, password: string, fullName: string) => {
     try {
-      const { data, error } = await supabase.auth.signUp({
+      if (!client) throw clientError || new Error('Supabase client not available')
+      const { data, error } = await client.auth.signUp({
         email,
         password,
         options: {
@@ -56,7 +73,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       // Create profile (ignore error if already exists)
       if (data.user) {
-        await supabase.from('profiles').insert({
+        await client.from('profiles').insert({
           id: data.user.id,
           email: data.user.email,
           full_name: fullName,
@@ -71,7 +88,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signIn = async (email: string, password: string) => {
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      if (!client) throw clientError || new Error('Supabase client not available')
+      const { error } = await client.auth.signInWithPassword({
         email,
         password,
       })
@@ -85,7 +103,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const signOut = async () => {
-    await supabase.auth.signOut()
+    if (!client) return
+    await client.auth.signOut()
   }
 
   return (
