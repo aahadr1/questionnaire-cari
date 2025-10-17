@@ -80,9 +80,7 @@ export async function POST(req: NextRequest) {
     .map((a) => ({ questionId: String(a.questionId).trim(), value: a.value }))
     .filter((a) => validIds.has(a.questionId))
 
-  if ((answers || []).length > 0 && normalizedAnswers.length === 0) {
-    return NextResponse.json({ error: 'No valid answers for this form' }, { status: 400 })
-  }
+  // If no valid answers remain, we'll still record the response without answers
 
   const { data: response, error: respErr } = await supabase
     .from('responses')
