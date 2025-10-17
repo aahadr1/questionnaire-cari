@@ -16,6 +16,11 @@ export default function Error({ error, reset }: { error: Error & { digest?: stri
         <div className="bg-white rounded-lg shadow p-6">
           <h1 className="text-2xl font-bold text-red-700 mb-2">Une erreur est survenue</h1>
           <p className="text-gray-700 mb-4">{error?.message || "Erreur inconnue"}</p>
+          {error?.stack && (
+            <pre className="text-xs text-gray-500 whitespace-pre-wrap break-words mb-4">
+              {error.stack}
+            </pre>
+          )}
           {error?.digest && (
             <p className="text-xs text-gray-500 mb-4">Code: {error.digest}</p>
           )}

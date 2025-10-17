@@ -14,6 +14,11 @@ export default function SignupError({ error, reset }: { error: Error & { digest?
         <div className="bg-white rounded-lg shadow p-6">
           <h1 className="text-2xl font-bold text-red-700 mb-2">Erreur sur la page d'inscription</h1>
           <p className="text-gray-700 mb-4">{error?.message || "Erreur inconnue"}</p>
+          {error?.stack && (
+            <pre className="text-xs text-gray-500 whitespace-pre-wrap break-words mb-4">
+              {error.stack}
+            </pre>
+          )}
           <button
             onClick={reset}
             className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-black hover:bg-gray-800"
