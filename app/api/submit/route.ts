@@ -19,7 +19,11 @@ export async function POST(req: NextRequest) {
     formId = parse.data.formId
     responder_name = parse.data.responder_name
     responder_email = parse.data.responder_email
-    answers = parse.data.answers
+    // Normalize and assert required value to satisfy TS
+    answers = parse.data.answers.map((a): { questionId: string; value: any } => ({
+      questionId: a.questionId,
+      value: (a as any).value,
+    }))
   } else {
     // Accept HTML form submissions (x-www-form-urlencoded or multipart/form-data)
     const fd = await req.formData()
