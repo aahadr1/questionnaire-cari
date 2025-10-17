@@ -18,27 +18,6 @@ export default function SignupPage() {
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
 
-  const missingEnv =
-    !process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-
-  if (missingEnv) {
-    return (
-      <div className="min-h-screen flex items-center justify-center p-6">
-        <div className="max-w-md w-full bg-white border rounded-lg p-6">
-          <h1 className="text-xl font-semibold mb-2">Configuration requise</h1>
-          <p className="text-sm text-gray-700">
-            Les variables d'environnement Supabase ne sont pas définies.
-          </p>
-          <ul className="mt-3 text-sm text-gray-700 list-disc list-inside">
-            <li>NEXT_PUBLIC_SUPABASE_URL</li>
-            <li>NEXT_PUBLIC_SUPABASE_ANON_KEY</li>
-          </ul>
-          <p className="mt-3 text-sm text-gray-500">Ajoutez-les dans Vercel et redéployez.</p>
-        </div>
-      </div>
-    )
-  }
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
