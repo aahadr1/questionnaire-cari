@@ -1,11 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createServerSupabase } from '@/lib/supabase/server'
+import { createServerSupabaseForAccessToken } from '@/lib/supabase/server'
+import { cookies } from 'next/headers'
 
 export async function GET(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const supabase = createServerSupabase()
+  // Use anonymous client for public read policies; include access token if present for owner reads
+  const cookieStore = cookies()
+  const authCookie = cookieStore.getAll().find(c => c.name.includes('-auth-token'))
+  let accessToken: string | null = null
+  if (authCookie?.value) {
+    try { accessToken = JSON.parse(authCookie.value)?.access_token || null } catch { accessToken = authCookie.value }
+  }
+  const supabase = createServerSupabaseForAccessToken(accessToken)
   const { id: formId } = params
   
   const searchParams = req.nextUrl.searchParams
