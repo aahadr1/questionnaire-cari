@@ -1,7 +1,7 @@
 'use client'
 
 import { SelectHTMLAttributes, forwardRef } from 'react'
-import { clsx } from 'clsx'
+import clsx from 'clsx'
 
 interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
   label?: string

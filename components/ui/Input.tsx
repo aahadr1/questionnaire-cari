@@ -1,7 +1,7 @@
 'use client'
 
 import { InputHTMLAttributes, forwardRef } from 'react'
-import { clsx } from 'clsx'
+import clsx from 'clsx'
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string

@@ -5,7 +5,7 @@ import { Question } from '@/types/form-builder'
 import { Input } from '@/components/ui/Input'
 import { Switch } from '@/components/ui/Switch'
 import { Button } from '@/components/ui/Button'
-import { clsx } from 'clsx'
+import clsx from 'clsx'
 
 interface QuestionEditorProps {
   question: Question

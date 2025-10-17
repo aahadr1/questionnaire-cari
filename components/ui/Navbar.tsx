@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
-import { clsx } from 'clsx'
+import clsx from 'clsx'
 
 export function Navbar() {
   const pathname = usePathname()
