@@ -69,6 +69,14 @@ export function FormBuilder({ formId, initialData, mode }: FormBuilderProps) {
             description: form.description,
             access_mode: form.accessMode,
             owner_id: undefined,
+            questions: form.questions.map(q => ({
+              index: q.index,
+              type: q.type,
+              label: q.label,
+              description: q.description,
+              is_required: q.isRequired,
+              options: q.options,
+            })),
           }),
         })
 
@@ -143,6 +151,17 @@ export function FormBuilder({ formId, initialData, mode }: FormBuilderProps) {
     if (!formId) return
 
     try {
+      // Guard: require at least one question
+      if (form.questions.length === 0) {
+        actions.setError('publish', 'Ajoutez au moins une question avant de publier')
+        return
+      }
+
+      // Ensure latest edits are persisted before publishing
+      if (isDirty) {
+        await handleSave()
+      }
+
       const response = await fetch('/api/forms/publish', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

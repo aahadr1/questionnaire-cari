@@ -3,7 +3,7 @@ import { createServerSupabase } from '@/lib/supabase/server'
 
 export async function POST(req: NextRequest) {
   const supabase = createServerSupabase()
-  const { title, description, access_mode, team_id, owner_id } = await req.json()
+  const { title, description, access_mode, team_id, owner_id, questions } = await req.json()
 
   // We require an owner_id due to schema; fallback to a deterministic anonymous owner
   // In production, derive from auth session (e.g., supabase auth) and/or team membership
@@ -21,6 +21,20 @@ export async function POST(req: NextRequest) {
     .select('id')
     .single()
   if (error) return NextResponse.json({ error: error.message }, { status: 400 })
+  // Insert initial questions if provided
+  if (Array.isArray(questions) && questions.length > 0) {
+    const rows = questions.map((q: any, idx: number) => ({
+      form_id: data.id,
+      index: typeof q.index === 'number' ? q.index : idx,
+      type: q.type,
+      label: q.label || 'Sans titre',
+      description: q.description ?? null,
+      is_required: !!q.is_required,
+      options: Array.isArray(q.options) ? q.options : [],
+    }))
+    const { error: qErr } = await supabase.from('questions').insert(rows)
+    if (qErr) return NextResponse.json({ error: qErr.message }, { status: 400 })
+  }
   return NextResponse.json({ id: data.id })
 }
 
