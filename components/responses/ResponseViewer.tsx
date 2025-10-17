@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/Button'
+import { getAuthHeaders } from '@/utils/auth'
 import { FormRecord, QuestionRecord, ResponseRecord, AnswerRecord } from '@/types/form'
 
 interface ResponseViewerProps {
@@ -31,9 +32,10 @@ export function ResponseViewer({ formId }: ResponseViewerProps) {
   const fetchData = async () => {
     try {
       setLoading(true)
+      const authHeaders = await getAuthHeaders()
       
       // Fetch form and questions
-      const formRes = await fetch(`/api/forms/${formId}`)
+      const formRes = await fetch(`/api/forms/${formId}`, { headers: { ...authHeaders } })
       if (!formRes.ok) throw new Error('Failed to fetch form')
       const { form, questions } = await formRes.json()
       
@@ -41,7 +43,7 @@ export function ResponseViewer({ formId }: ResponseViewerProps) {
       setQuestions(questions)
 
       // Fetch responses
-      const responsesRes = await fetch(`/api/forms/${formId}/responses?page=${page}&limit=${itemsPerPage}`)
+      const responsesRes = await fetch(`/api/forms/${formId}/responses?page=${page}&limit=${itemsPerPage}`, { headers: { ...authHeaders } })
       if (!responsesRes.ok) throw new Error('Failed to fetch responses')
       const { responses, total } = await responsesRes.json()
       
@@ -56,7 +58,8 @@ export function ResponseViewer({ formId }: ResponseViewerProps) {
 
   const exportToCSV = async () => {
     try {
-      const response = await fetch(`/api/forms/${formId}/export`)
+      const authHeaders = await getAuthHeaders()
+      const response = await fetch(`/api/forms/${formId}/export`, { headers: { ...authHeaders } })
       if (!response.ok) throw new Error('Failed to export')
       
       const blob = await response.blob()
