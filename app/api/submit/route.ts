@@ -65,6 +65,25 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Form unavailable' }, { status: 400 })
   }
 
+  // Fetch valid question IDs for the target form and validate payload
+  const { data: validQuestions, error: validQErr } = await supabase
+    .from('questions')
+    .select('id')
+    .eq('form_id', formId)
+
+  if (validQErr) {
+    return NextResponse.json({ error: validQErr.message }, { status: 400 })
+  }
+
+  const validIds = new Set((validQuestions || []).map((q: any) => String(q.id)))
+  const normalizedAnswers = (answers || [])
+    .map((a) => ({ questionId: String(a.questionId).trim(), value: a.value }))
+    .filter((a) => validIds.has(a.questionId))
+
+  if ((answers || []).length > 0 && normalizedAnswers.length === 0) {
+    return NextResponse.json({ error: 'No valid answers for this form' }, { status: 400 })
+  }
+
   const { data: response, error: respErr } = await supabase
     .from('responses')
     .insert({ form_id: formId, responder_name, responder_email })
@@ -74,8 +93,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: respErr.message }, { status: 400 })
   }
 
-  if (answers.length > 0) {
-    const rows = answers.map((a: any) => ({
+  if (normalizedAnswers.length > 0) {
+    const rows = normalizedAnswers.map((a: any) => ({
       response_id: response.id,
       question_id: a.questionId,
       value: a.value,
