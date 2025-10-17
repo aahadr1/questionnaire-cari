@@ -1,14 +1,20 @@
-import Link from 'next/link'
+'use client'
+
+import { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 
 export default function DashboardPage() {
+  const router = useRouter()
+  
+  // Redirect to forms page as dashboard is not implemented yet
+  useEffect(() => {
+    router.push('/forms')
+  }, [router])
+  
   return (
     <main className="mx-auto max-w-6xl p-8">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Dashboard</h1>
-        <Link href="/forms/new" className="rounded bg-black px-4 py-2 text-white">Nouveau formulaire</Link>
-      </div>
-      <div className="mt-6">
-        <Link href="/forms" className="rounded border px-4 py-2">Mes formulaires</Link>
+      <div className="flex items-center justify-center h-64">
+        <div className="text-gray-500">Redirection...</div>
       </div>
     </main>
   )

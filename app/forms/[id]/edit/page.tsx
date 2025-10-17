@@ -1,30 +1,78 @@
-import Link from 'next/link'
+'use client'
+
+import { useEffect, useState } from 'react'
+import { FormBuilder } from '@/components/form-builder/FormBuilder'
+import { FormData } from '@/types/form-builder'
 
 type Props = { params: { id: string } }
 
 export default function FormEditPage({ params }: Props) {
   const { id } = params
-  return (
-    <main className="mx-auto max-w-3xl p-8">
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">Édition du formulaire</h1>
-        <Link href={`/forms/${id}/responses`} className="rounded border px-3 py-2">Voir réponses</Link>
-      </div>
-      <div className="mt-6 space-y-4">
-        <div className="rounded border p-4">
-          <div className="text-sm text-gray-600">Question 1</div>
-          <input className="mt-2 w-full rounded border px-3 py-2" placeholder="Intitulé de la question" />
-          <input className="mt-2 w-full rounded border px-3 py-2" placeholder="Réponse (texte court)" />
-          <div className="mt-3 flex gap-2">
-            <button className="rounded border px-3 py-1">Supprimer</button>
-          </div>
+  const [loading, setLoading] = useState(true)
+  const [formData, setFormData] = useState<FormData | null>(null)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    async function fetchForm() {
+      try {
+        const response = await fetch(`/api/forms/${id}`)
+        if (!response.ok) throw new Error('Failed to fetch form')
+        
+        const { form, questions } = await response.json()
+        
+        const mappedData: FormData = {
+          title: form.title || 'Sans titre',
+          description: form.description || '',
+          accessMode: form.access_mode || 'anonymous',
+          identificationFields: form.identification_fields || [],
+          questions: questions.map((q: any) => ({
+            id: q.id,
+            type: q.type,
+            label: q.label,
+            description: q.description,
+            isRequired: q.is_required,
+            options: q.options,
+            index: q.index,
+          })),
+          isPublished: form.is_published,
+          isActive: form.is_active,
+          slug: form.slug,
+        }
+        
+        setFormData(mappedData)
+      } catch (err) {
+        setError('Erreur lors du chargement du formulaire')
+        console.error(err)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchForm()
+  }, [id])
+
+  if (loading) {
+    return (
+      <main className="mx-auto max-w-7xl p-8">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-gray-500">Chargement...</div>
         </div>
-        <button className="rounded bg-black px-4 py-2 text-white">Add question</button>
-      </div>
-      <div className="mt-6 flex items-center gap-3">
-        <Link href="/forms" className="rounded border px-4 py-2">Retour</Link>
-        <button className="rounded bg-green-600 px-4 py-2 text-white">Enregistrer</button>
-      </div>
+      </main>
+    )
+  }
+
+  if (error || !formData) {
+    return (
+      <main className="mx-auto max-w-7xl p-8">
+        <div className="text-red-600">{error || 'Formulaire introuvable'}</div>
+      </main>
+    )
+  }
+
+  return (
+    <main className="mx-auto max-w-7xl p-8">
+      <h1 className="text-2xl font-bold mb-6">Édition du formulaire</h1>
+      <FormBuilder formId={id} initialData={formData} mode="edit" />
     </main>
   )
 }
