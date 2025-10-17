@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
     if (qErr) {
       return NextResponse.json({ error: qErr.message }, { status: 400 })
     }
-    answers = (qs || []).map((q) => {
+    answers = (qs || []).map((q): { questionId: string; value: any } => {
       const field = fd.get(`q_${q.id}`)
       const value = typeof field === 'string' ? field : (field ?? '')
       return { questionId: q.id as string, value }
