@@ -5,8 +5,17 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { FormRecord } from '@/types/form'
 import { Button } from '@/components/ui/Button'
+import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
 
 export default function FormsListPage() {
+  return (
+    <ProtectedRoute>
+      <FormsListContent />
+    </ProtectedRoute>
+  )
+}
+
+function FormsListContent() {
   const router = useRouter()
   const [forms, setForms] = useState<FormRecord[]>([])
   const [loading, setLoading] = useState(true)

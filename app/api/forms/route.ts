@@ -1,13 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabase } from '@/lib/supabase/server'
+import { getAuthUser } from '@/lib/supabase/server-auth'
 
 export async function GET(req: NextRequest) {
+  const user = await getAuthUser()
+
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
   const supabase = createServerSupabase()
   
-  // Get all forms
+  // Get forms owned by this user
   const { data: forms, error: formsError } = await supabase
     .from('forms')
     .select('*')
+    .eq('owner_id', user.id)
     .order('created_at', { ascending: false })
 
   if (formsError) {

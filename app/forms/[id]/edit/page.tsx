@@ -3,10 +3,19 @@
 import { useEffect, useState } from 'react'
 import { FormBuilder } from '@/components/form-builder/FormBuilder'
 import { FormData } from '@/types/form-builder'
+import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
 
 type Props = { params: { id: string } }
 
 export default function FormEditPage({ params }: Props) {
+  return (
+    <ProtectedRoute>
+      <FormEditContent params={params} />
+    </ProtectedRoute>
+  )
+}
+
+function FormEditContent({ params }: Props) {
   const { id } = params
   const [loading, setLoading] = useState(true)
   const [formData, setFormData] = useState<FormData | null>(null)

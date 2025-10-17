@@ -1,13 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabase } from '@/lib/supabase/server'
+import { getAuthUser } from '@/lib/supabase/server-auth'
 
 export async function POST(req: NextRequest) {
-  const supabase = createServerSupabase()
-  const { title, description, access_mode, team_id, owner_id, questions } = await req.json()
+  const user = await getAuthUser()
 
-  // We require an owner_id due to schema; fallback to a deterministic anonymous owner
-  // In production, derive from auth session (e.g., supabase auth) and/or team membership
-  const effectiveOwnerId = owner_id || process.env.DEFAULT_OWNER_ID || '00000000-0000-0000-0000-000000000000'
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  const supabase = createServerSupabase()
+  const { title, description, access_mode, team_id, questions } = await req.json()
+
+  const effectiveOwnerId = user.id
 
   const { data, error } = await supabase
     .from('forms')

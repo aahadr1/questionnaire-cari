@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabase } from '@/lib/supabase/server'
+import { getAuthUser } from '@/lib/supabase/server-auth'
 
 type SavePayload = {
   form: { title?: string; description?: string; access_mode?: string; identification_fields?: any[] }
@@ -7,9 +8,26 @@ type SavePayload = {
 }
 
 export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+  const user = await getAuthUser()
+
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
   const supabase = createServerSupabase()
   const { id } = params
   const payload = (await req.json()) as SavePayload
+
+  // Verify user owns this form
+  const { data: form } = await supabase
+    .from('forms')
+    .select('owner_id')
+    .eq('id', id)
+    .single()
+
+  if (!form || form.owner_id !== user.id) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  }
 
   // Update form
   if (payload.form) {

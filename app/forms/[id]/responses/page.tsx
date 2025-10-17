@@ -3,10 +3,19 @@
 import Link from 'next/link'
 import { ResponseViewer } from '@/components/responses/ResponseViewer'
 import { Button } from '@/components/ui/Button'
+import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
 
 type Props = { params: { id: string } }
 
 export default function FormResponsesPage({ params }: Props) {
+  return (
+    <ProtectedRoute>
+      <FormResponsesContent params={params} />
+    </ProtectedRoute>
+  )
+}
+
+function FormResponsesContent({ params }: Props) {
   const { id } = params
   
   return (
