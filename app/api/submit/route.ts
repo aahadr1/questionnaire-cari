@@ -74,14 +74,16 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: respErr.message }, { status: 400 })
   }
 
-  const rows = answers.map((a: any) => ({
-    response_id: response.id,
-    question_id: a.questionId,
-    value: a.value,
-  }))
-  const { error: ansErr } = await supabase.from('answers').insert(rows)
-  if (ansErr) {
-    return NextResponse.json({ error: ansErr.message }, { status: 400 })
+  if (answers.length > 0) {
+    const rows = answers.map((a: any) => ({
+      response_id: response.id,
+      question_id: a.questionId,
+      value: a.value,
+    }))
+    const { error: ansErr } = await supabase.from('answers').insert(rows)
+    if (ansErr) {
+      return NextResponse.json({ error: ansErr.message }, { status: 400 })
+    }
   }
   return NextResponse.json({ ok: true })
 }

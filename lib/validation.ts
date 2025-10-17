@@ -13,7 +13,7 @@ export const SubmitSchema = z.object({
         value: AnswerValueSchema,
       })
     )
-    .min(1),
+    .min(0),
 })
 
 export type SubmitPayload = z.infer<typeof SubmitSchema>
